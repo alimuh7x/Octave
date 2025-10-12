@@ -1,6 +1,6 @@
 #!/usr/bin/env -S octave --no-gui --quiet
 set(0, "defaultfigurevisible", "off");  % hide figure window
-addpath(genpath("~/.config/nvim/Octave/src"));
+addpath(genpath("./../../src"));  % add src folder to path
 
 % ---------------------------------------------------------------------------
 % NOTE: Solving Numerically using finite difference method (SOR)
@@ -46,41 +46,7 @@ switch solver
             phi_old = phi;   % keep previous step
             for i = 2:Nx-1
                 phi(i) = 0.5 * (phi_old(i+1) + phi_old(i-1) + dx^2 * rho(i) / epsilon0);
-
-                %  if iter == 9999
-                %     if i == 99
-                %         myprint("Phi(i-1)", phi_old(i-1), "old Phi(i)", phi_old(i), "Phi(i+1)", phi_old(i+1));
-                %         myprint("neibhourAvg", 0.5 * (phi_old(i+1) + phi_old(i-1)));
-                %         myprint("dx^2 * rho(i) / epsilon0", 0.5 * dx^2 * rho(i) / epsilon0);
-                %         myprint("phi_new_Calculated", phi(i));
-                %         diff = phi(i) - 0.5 * (phi_old(i+1) + phi_old(i-1) + dx^2);
-                %            myprint("diff", diff);
-                %         myprint("rho(i)", rho(i));
-                %         printf("------------------------------------------------------------------------\n");
-                %     end
-                %     if i == 100
-                %         myprint("Phi(i-1)", phi_old(i-1), "OLD Phi(i)", phi_old(i), "Phi(i+1)", phi_old(i+1));
-                %         myprint("neibhourAvg", 0.5 * (phi_old(i+1) + phi_old(i-1)));
-                %         myprint("dx^2 * rho(i) / epsilon0", 0.5 * dx^2 * rho(i) / epsilon0);
-                %         myprint("phi_new_Calculated", phi(i));
-                %         diff = phi(i) - 0.5 * (phi_old(i+1) + phi_old(i-1) + dx^2);
-                %            myprint("diff", diff);
-                %         myprint("rho(i)", rho(i));
-                %         printf("------------------------------------------------------------------------\n");
-                %     end
-                %     if i == 101
-                %         myprint("Phi(i-1)", phi_old(i-1), "OLD Phi(i)", phi_old(i), "Phi(i+1)", phi_old(i+1));
-                %         myprint("neibhourAvg", 0.5 * (phi_old(i+1) + phi_old(i-1)));
-                %         myprint("dx^2 * rho(i) / epsilon0", 0.5 * dx^2 * rho(i) / epsilon0);
-                %         myprint("phi_new_Calculated", phi(i));
-                %         diff = phi(i) - 0.5 * (phi_old(i+1) + phi_old(i-1) + dx^2);
-                %            myprint("diff", diff);
-                %         myprint("rho(i)", rho(i));
-                %         printf("=========================================================================\n");
-                %         pause;
-                %     end
-                %  end
-            end
+           end
             % Periodic BCs
             phi(1) = 0.5 * (phi_old(2) + phi_old(end) + dx^2 * rho(1) / epsilon0);
             phi(end) = 0.5 * (phi_old(1) + phi_old(end-1) + dx^2 * rho(end) / epsilon0);
