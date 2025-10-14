@@ -1,5 +1,8 @@
 #!/usr/bin/env -S octave --no-gui --quiet
 set(0, "defaultfigurevisible", "off");  % hide figure window
+set(0, "defaultfigureposition", [100, 100, 800, 650]);
+
+
 addpath(genpath("./../../src"));  % add src folder to path
 
 
@@ -78,7 +81,7 @@ axis image; colorbar;
 title('\rho(x,y) = sin(2πx)cos(2πy)');
 xlabel('x'); 
 ylabel('y');
-set(gca, 'FontSize', 14, 'YDir', 'normal');
+set(gca, 'FontSize', 16, 'YDir', 'normal');
 print("2D_Rho.png", "-dpng");
 
 % -------------------------------------------------------------------------
@@ -90,7 +93,7 @@ imagesc(x, y, phi);
 axis image; colorbar;
 title('\phi(x,y)');
 xlabel('x'); ylabel('y');
-set(gca, 'FontSize', 14, 'YDir', 'normal');
+set(gca, 'FontSize', 16, 'YDir', 'normal');
 print("2D_Potential.png", "-dpng");
 
 
@@ -113,7 +116,7 @@ Eys = Ey(1:step:end, 1:step:end);
 Ems = E_mag(1:step:end, 1:step:end);
 quiver(Xs, Ys, Exs./Ems, Eys./Ems, 0.5, 'k');
 
-set(gca, 'FontSize', 14, 'YDir', 'normal');
+set(gca, 'FontSize', 16, 'YDir', 'normal');
 print("2D_ElectricField_Vectors.png", "-dpng");
 
 % -------------------------------------------------------------------------
@@ -138,7 +141,7 @@ Jms = J_mag(1:step:end, 1:step:end);
 % Normalize arrows for consistent size
 quiver(Xs, Ys, Jxs./Jms, Jys./Jms, 0.5, 'k');
 
-set(gca, 'FontSize', 14, 'YDir', 'normal');
+set(gca, 'FontSize', 16, 'YDir', 'normal');
 print("2D_ChargeFlux_Map.png", "-dpng");
 
 
@@ -150,7 +153,7 @@ imagesc(x, y, rho_dot);
 axis image; colorbar;
 title('Rate of Change \rhȯ(x,y) = -∇·J');
 xlabel('x'); ylabel('y');
-set(gca, 'FontSize', 14, 'YDir', 'normal');
+set(gca, 'FontSize', 16, 'YDir', 'normal');
 print("2D_RhoDot.png", "-dpng");
 
 % -------------------------------------------------------------------------
@@ -163,13 +166,13 @@ subplot(2,2,1)
 imagesc(x, y, rho);
 axis image; colorbar;
 title('Old \rho(x,y)');
-set(gca, 'YDir', 'normal', 'FontSize', 14);
+set(gca, 'YDir', 'normal', 'FontSize', 16);
 
 subplot(2,2,2)
 imagesc(x, y, new_rho);
 axis image; colorbar;
 title('New \rho(x,y)');
-set(gca, 'YDir', 'normal', 'FontSize', 14);
+set(gca, 'YDir', 'normal', 'FontSize', 16);
 
 % Difference map: Δρ = new_rho - rho
 subplot(2,2,3)
@@ -177,7 +180,7 @@ imagesc(x, y, new_rho - rho);
 axis image; colorbar;
 colormap(viridis);
 title('\Delta\rho(x,y) = New - Old');
-set(gca, 'YDir', 'normal', 'FontSize', 14);
+set(gca, 'YDir', 'normal', 'FontSize', 16);
 
 print("2D_Rho_Comparison_Diff.png", "-dpng");
 
