@@ -29,7 +29,9 @@ X_Cl = 0.5 * exp(-((x - 0.7).^2) / 0.002);
 
 X_Fe = X_Fe / max(X_Fe);
 X_Cl = X_Cl / max(X_Cl);
+
 c_total = 1000;         % mol/m³ (≈1 M electrolyte)
+
 c_Fe = X_Fe * c_total;
 c_Cl = X_Cl * c_total;
 
