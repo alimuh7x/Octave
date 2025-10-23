@@ -1,144 +1,120 @@
 #!/usr/bin/env -S octave --no-gui --quiet
 set(0, "defaultfigurevisible", "off");  % hide figure window
-
-
+addpath(genpath("./../../src"));  % add src folder to path
 
 clear; clc; close all
 
-% -------------------------------------------------------------------------
-% Parameters
-% -------------------------------------------------------------------------
-Nx = 256;                   % grid points
-Lx = 1.0;                   % domain length
-dx = Lx / Nx;
+Nx = 512;   % or 1024
+dx = 1e-4;
+Lx = Nx * dx;              % adjust Lx to match dx
 x = linspace(0, Lx - dx, Nx);
-epsilon0 = 8.854e-12;       % vacuum permittivity
-mu = 1e-13;                 % mobility
-D  = 1e-4;                  % diffusion coefficient
-dt = 3e-2;
-Nt = 5000;                  % total steps
-plot_interval = 50;         % plot/save frequency
+
+epsilon0 = 8.854e-12;         % vacuum permittivity
+mu = 1e-12;                   % mobility
+D  = 5e-6;                    % diffusion coefficient
+dt = 1e-4;
+%dt = 1e-6;
+Nt = 10000;                    % total steps
+plot_interval = 100;           % plot frequency
+Faraday = 96485.3329;          % C/mol
 
 % -------------------------------------------------------------------------
-% Initial condition (periodic sine)
+% Positive carrier densities (Fe2+ and Cl-)
 % -------------------------------------------------------------------------
-rho = sin(2*pi*x);          % perfectly periodic
-%rho = rho - mean(rho);      % ensure neutrality
+x0_Fe = 0.3 * Lx;     % Fe2+ center
+x0_Cl = 0.7 * Lx;     % Cl- center
+sigma = 0.05 * Lx;    % width
 
-fprintf('ρ(0)=%.3e, ρ(L)=%.3e, diff=%.3e\n', rho(1), rho(end), rho(1)-rho(end));
+c_Fe = exp(-((x - x0_Fe).^2) / (2*sigma^2));   % Fe2+ concentration (positive)
+c_Cl = exp(-((x - x0_Cl).^2) / (2*sigma^2));   % Cl- concentration (positive)
 
-phi = zeros(1, Nx);
+z_Fe =  2;       % charge number for Fe2+
+z_Cl = -2;       % charge number for Cl-
+
 
 % -------------------------------------------------------------------------
 % FFT wavenumbers
 % -------------------------------------------------------------------------
 k  = (2*pi/Lx) * [0:(Nx/2-1) -Nx/2:-1];
-k2 = k.^2;  k2(1) = 1;      % avoid division by zero
+k2 = k.^2;  
+k2(1) = 1;
 
 % -------------------------------------------------------------------------
 % Storage
 % -------------------------------------------------------------------------
+
 rho_snapshots = [];
 phi_snapshots = [];
 time_labels   = [];
 convergence   = zeros(1, Nt);
 energy        = zeros(1, Nt);
-rho_old       = rho;
+
+dt_cfl = dx^2 / (2*D);
+myprint("CFL : ", dt_cfl, " < then dt : ", dt);
+
+rhoPlot = SnapshotPlotter('Charge_Evolution.png');
 
 % -------------------------------------------------------------------------
 % TIME LOOP
 % -------------------------------------------------------------------------
 for t = 1:Nt
-    % ---- Neutrality before Poisson ----
-    rho = rho - mean(rho);
+    % ---- Compute total charge density ----
+    rho = Faraday * (z_Fe * c_Fe + z_Cl * c_Cl);
+    rho = rho - mean(rho);     % enforce neutrality
+
+    rho(1)   = rho(end-1);
+    rho(end) = rho(2);
 
     % ---- Solve Poisson: φ_xx = -ρ/ε0 ----
     rho_hat = fft(rho);
-    phi_hat = rho_hat ./ (epsilon0 * k2);   % <-- correct sign
-    phi_hat(1) = 0;                          % remove DC mode
-    phi_hat(end) = 0;                        % remove Nyquist
+    phi_hat = rho_hat ./ (epsilon0 * k2 * 1e7);
+    phi_hat(1) = 0;
     phi = real(ifft(phi_hat));
 
     % ---- Electric field: E = -φ_x ----
     E_hat = 1i * k .* phi_hat;
-    E_hat(end) = 0;
     E = -real(ifft(E_hat));
 
-    % ---- Drift & diffusion flux ----
-    J_drift = mu * rho .* E;                 % μρE (since E already = -φx)
+    % ---- Drift + diffusion for each species ----
+    grad_Fe = real(ifft(1i * k .* fft(c_Fe)));
+    grad_Cl = real(ifft(1i * k .* fft(c_Cl)));
 
-    grad_rho = real(ifft(1i * k .* fft(rho)));
-    J_diff  = -D * grad_rho;
+    J_Fe = -D * grad_Fe + z_Fe * mu * c_Fe .* E;
+    J_Cl = -D * grad_Cl + z_Cl * mu * c_Cl .* E;
 
-    % J_total = J_drift + J_diff;
-    J_total = J_drift;
-    % J_total = J_diff;
+    % ---- Continuity: c_t = -dJ/dx ----
+    c_Fe_dot = -real(ifft(1i * k .* fft(J_Fe)));
+    c_Cl_dot = -real(ifft(1i * k .* fft(J_Cl)));
 
-    % ---- Continuity equation: ρ_t = -∂J/∂x ----
-    rho_dot = -real(ifft(1i * k .* fft(J_total)));
-    rho = rho + dt * rho_dot;
-    rho = rho - mean(rho);                   % keep charge neutrality
+    % ---- Ensure positive evolution ----
+    %c_Fe_dot = abs(c_Fe_dot);
+    %c_Cl_dot = abs(c_Cl_dot);
+
+    % ---- Update concentrations ----
+    c_Fe = c_Fe + dt * c_Fe_dot;
+    c_Cl = c_Cl + dt * c_Cl_dot;
+
+    % ---- Keep densities positive ----
+    c_Fe = max(c_Fe, 0);
+    c_Cl = max(c_Cl, 0);
+
+    
+    % ---- Periodic boundary wrapping (ghost cells) ----
+    c_Fe(1)   = c_Fe(end-1);
+    c_Fe(end) = c_Fe(2);
+    c_Cl(1)   = c_Cl(end-1);
+    c_Cl(end) = c_Cl(2);
 
     % ---- Diagnostics ----
-    convergence(t) = sqrt(sum((rho - rho_old).^2) / Nx);
+    convergence(t) = sqrt(sum((rho).^2) / Nx);
     energy(t) = 0.5 * epsilon0 * sum(E.^2) * dx;
-    rho_old = rho;
 
-    % ---- CFL info ----
     if mod(t, plot_interval) == 0
-        Emax = max(abs(E));
-        driftCFL = mu * Emax * dt / dx;
-        diffCFL  = D * dt / dx^2;
-        fprintf("Step %d: driftCFL=%.3e, diffCFL=%.3e\n", t, driftCFL, diffCFL);
-        Q = sum(rho)*dx;
-        fprintf("t=%.3e s, Total charge = %.3e\n", t*dt, Q);
-    end
+        fprintf("Step %d:  <rho>=%.3e  Energy=%.3e\n", t, mean(rho), energy(t));
 
-    % ---- Plot + Save periodically ----
-    if mod(t, plot_interval) == 0 || t == 1
-        rho_snapshots = [rho_snapshots; rho];
-        phi_snapshots = [phi_snapshots; phi];
-        time_labels   = [time_labels; t*dt];
-        cmap = jet(size(rho_snapshots,1));
 
-        % -------------------------------------------------------------
-        % Figure 1: Charge & Potential evolution
-        % -------------------------------------------------------------
-        fig1 = figure(1, "visible", "off"); clf;
-        subplot(2,1,1); hold on;
-        for k1 = 1:size(rho_snapshots,1)
-            plot(x, rho_snapshots(k1,:), 'Color', cmap(k1,:), 'LineWidth', 1.3);
-        end
-        xlabel('x'); ylabel('\rho(x)');
-        title('Charge density evolution  \rho(x,t)  (Periodic BC)');
-        grid on; ylim auto;
-
-        subplot(2,1,2); hold on;
-        for k1 = 1:size(phi_snapshots,1)
-            plot(x, phi_snapshots(k1,:), 'Color', cmap(k1,:), 'LineWidth', 1.3);
-        end
-        xlabel('x'); ylabel('\phi(x)');
-        title('Potential evolution  \phi(x,t)');
-        grid on; ylim auto;
-
-        print(fig1, "Charge_Potential_Evolution.png", "-dpng");
-        fprintf('Saved Charge_Potential_Evolution.png at step %d\n', t);
-
-        % -------------------------------------------------------------
-        % Figure 2: Convergence & Energy
-        % -------------------------------------------------------------
-        fig2 = figure(2, "visible", "off"); clf;
-        subplot(2,1,1);
-        semilogy((1:t)*dt, convergence(1:t), 'b', 'LineWidth', 1.3);
-        xlabel('Time (s)'); ylabel('||Δρ||₂');
-        title('Convergence of charge density'); grid on;
-
-        subplot(2,1,2);
-        plot((1:t)*dt, energy(1:t), 'r', 'LineWidth', 1.3);
-        xlabel('Time (s)'); ylabel('Energy (J)');
-        title('Total electrostatic energy'); grid on;
-
-        print(fig2, "Convergence_Energy.png", "-dpng");
+         rhoPlot.add_and_plot(x, rho, phi,  'x', '\rho(x)', '\phi(x)');
+        % ---- Store snapshots ----
     end
 
     % ---- Stop if steady ----
@@ -148,5 +124,5 @@ for t = 1:Nt
     end
 end
 
-fprintf('✅ Simulation complete. Final plots saved.\n');
+fprintf('✓ Simulation complete. Final plots saved.\n');
 
