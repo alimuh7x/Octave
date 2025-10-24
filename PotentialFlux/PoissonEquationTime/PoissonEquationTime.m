@@ -10,8 +10,10 @@ Lx = Nx * dx;              % adjust Lx to match dx
 x = linspace(0, Lx - dx, Nx);
 
 epsilon0 = 8.854e-12;         % vacuum permittivity
-mu = 1e-12;                   % mobility
-D  = 5e-6;                    % diffusion coefficient
+
+mu = 2e-10;                   % mobility
+D  = 1e-6;                    % diffusion coefficient
+
 dt = 1e-4;
 %dt = 1e-6;
 Nt = 10000;                    % total steps
@@ -50,10 +52,9 @@ convergence   = zeros(1, Nt);
 energy        = zeros(1, Nt);
 
 dt_cfl = dx^2 / (2*D);
-myprint("CFL : ", dt_cfl, " < then dt : ", dt);
+myprint("CFL : ", dt_cfl, " > then dt : ", dt);
 
 rhoPlot = SnapshotPlotter('Charge_Evolution.png');
-
 % -------------------------------------------------------------------------
 % TIME LOOP
 % -------------------------------------------------------------------------
@@ -82,13 +83,10 @@ for t = 1:Nt
     J_Fe = -D * grad_Fe + z_Fe * mu * c_Fe .* E;
     J_Cl = -D * grad_Cl + z_Cl * mu * c_Cl .* E;
 
+
     % ---- Continuity: c_t = -dJ/dx ----
     c_Fe_dot = -real(ifft(1i * k .* fft(J_Fe)));
     c_Cl_dot = -real(ifft(1i * k .* fft(J_Cl)));
-
-    % ---- Ensure positive evolution ----
-    %c_Fe_dot = abs(c_Fe_dot);
-    %c_Cl_dot = abs(c_Cl_dot);
 
     % ---- Update concentrations ----
     c_Fe = c_Fe + dt * c_Fe_dot;
@@ -112,9 +110,16 @@ for t = 1:Nt
     if mod(t, plot_interval) == 0
         fprintf("Step %d:  <rho>=%.3e  Energy=%.3e\n", t, mean(rho), energy(t));
 
+        J_diff = -D * grad_Fe;
+        J_mig  = z_Fe * mu * c_Fe .* E;
+
+        R = abs(J_mig) ./ abs(J_diff);
+        maxR = max(R);
+        myprint("Max |J_mig|/|J_diff| = ", maxR);
+        myprint("------------------------------------------------------------");
+        
 
          rhoPlot.add_and_plot(x, rho, phi,  'x', '\rho(x)', '\phi(x)');
-        % ---- Store snapshots ----
     end
 
     % ---- Stop if steady ----
@@ -124,5 +129,6 @@ for t = 1:Nt
     end
 end
 
+WriteToFile('Density_M_High.txt', x, rho);
 fprintf('✓ Simulation complete. Final plots saved.\n');
 
