@@ -2,8 +2,8 @@
 set(0, "defaultfigurevisible", "off");  % hide figure window
 set(0, "defaultfigureposition", [100, 100, 800, 650]);
 
-
 addpath(genpath("./../../src"));  % add src folder to path
+
 
 
 % -------------------------------------------------------------------------
@@ -11,178 +11,122 @@ addpath(genpath("./../../src"));  % add src folder to path
 % -------------------------------------------------------------------------
 clear; clc;
 
-mu = 5e-10;
+% -------------------------------------------------------------------------
 % Parameters
-Nx = 128; Ny = 128;
+% -------------------------------------------------------------------------
+mu = 5e-10;
+Nx = 512; Ny = 512;
 Lx = 1.0; Ly = 1.0;
 
 dx = Lx / Nx; 
 dy = Ly / Ny;
-
 epsilon0 = 8.854e-12;
 
 x = linspace(0, Lx - dx, Nx);
 y = linspace(0, Ly - dy, Ny);
+[X,Y] = meshgrid(x, y);
 
-[X, Y] = meshgrid(x, y);
-
-% Charge density
+% -------------------------------------------------------------------------
+% Charge density (initial)
+% -------------------------------------------------------------------------
 rho = sin(2*pi*X) .* cos(2*pi*Y);
 
-% FFT of charge
+% -------------------------------------------------------------------------
+% Solve Poisson equation in Fourier space
+% -------------------------------------------------------------------------
 rho_hat = fft2(rho);
 
-% Wavenumbers
 kx = (2*pi/Lx) * [0:(Nx/2-1) -Nx/2:-1];
 ky = (2*pi/Ly) * [0:(Ny/2-1) -Ny/2:-1];
-
 [KX, KY] = meshgrid(kx, ky);
 
 k2 = KX.^2 + KY.^2;
 k2(1,1) = 1;       % avoid division by zero
 
-% Solve in Fourier space
 phi_hat = rho_hat ./ (epsilon0 * k2);
 phi_hat(1,1) = 0;  % zero-mean potential
 phi = real(ifft2(phi_hat));
 
 % -------------------------------------------------------------------------
-% Electric field and flux
+% Electric field
 % -------------------------------------------------------------------------
-
 [phi_x, phi_y] = gradient(phi, dx, dy);
-
-Ex = -phi_x; 
+Ex = -phi_x;
 Ey = -phi_y;
 E_mag = sqrt(Ex.^2 + Ey.^2);
 
+% -------------------------------------------------------------------------
+% Separate positive and negative charge densities
+% -------------------------------------------------------------------------
+rho_pos = max(rho, 0);   % positive charge (e.g., Fe2+)
+rho_neg = min(rho, 0);   % negative charge (e.g., Cl-)
 
-Jx = mu * rho .* Ex;
-Jy = mu * rho .* Ey;
+z_pos = +1;
+z_neg = -1;
+mu_pos = mu;
+mu_neg = mu;
 
 % -------------------------------------------------------------------------
-% Rate of charge change
+% Fluxes for each charge type
 % -------------------------------------------------------------------------
+Jx_pos = mu_pos * rho_pos .* Ex * z_pos;
+Jy_pos = mu_pos * rho_pos .* Ey * z_pos;
 
-[divJx, divJy] = gradient(Jx, dx, dy);
+Jx_neg = mu_neg * rho_neg .* Ex * z_neg;
+Jy_neg = mu_neg * rho_neg .* Ey * z_neg;
 
+% Total flux
+Jx_total = Jx_pos + Jx_neg;
+Jy_total = Jy_pos + Jy_neg;
+
+% -------------------------------------------------------------------------
+% Rate of charge change (divergence of flux)
+% -------------------------------------------------------------------------
+[divJx, divJy] = gradient(Jx_total, dx, dy);
 rho_dot = -(divJx + divJy);
-rho_dot = rho_dot - mean(rho_dot(:));   % remove drift
+rho_dot = rho_dot - mean(rho_dot(:));
 
-new_rho = rho + 0.01 * rho_dot;
-
-% -------------------------------------------------------------------------
-% Plot: Charge Density
-% -------------------------------------------------------------------------
-
-figure;
-imagesc(x, y, rho);
-axis image; colorbar;
-title('\rho(x,y) = sin(2πx)cos(2πy)');
-xlabel('x'); 
-ylabel('y');
-set(gca, 'FontSize', 16, 'YDir', 'normal');
-print("2D_Rho.png", "-dpng");
+% Update charge density
+dt = 0.01;
+new_rho = rho + dt * rho_dot;
 
 % -------------------------------------------------------------------------
-% Plot: Potential
+%  NOTE: Visualization using FieldPlot class (with electric field arrows)
 % -------------------------------------------------------------------------
 
-figure;
-imagesc(x, y, phi);
-axis image; colorbar;
-title('\phi(x,y)');
-xlabel('x'); ylabel('y');
-set(gca, 'FontSize', 16, 'YDir', 'normal');
-print("2D_Potential.png", "-dpng");
+% Default arrow downsampling for clarity
+skip = 15;
 
+% --- Initial charge density ---
+p = FieldPlot("rho_initial.png");
+p.add_Image(x, y, rho, "Initial \\rho");
+p.save();
 
-% -------------------------------------------------------------------------
-% Plot: Electric Field Vectors (normalized)
-% -------------------------------------------------------------------------
+% --- Positive charge density ---
+p = FieldPlot("rho_positive.png");
+p.add_Image(x, y, rho_pos, "Positive charge density \\rho^+", ColorMaps.jet);
+p.save();
 
-figure;
-imagesc(x, y, E_mag); 
-axis image; hold on;
-colorbar;
-title('Electric Field Magnitude and Direction');
-xlabel('x'); ylabel('y');
+% --- Negative charge density ---
+p = FieldPlot("rho_negative.png");
+p.add_Image(x, y, rho_neg, "Negative charge density \\rho^-", ColorMaps.jet);
+p.save();
 
-step = 4; % Downsample for clarity
-Xs = X(1:step:end, 1:step:end);
-Ys = Y(1:step:end, 1:step:end);
-Exs = Ex(1:step:end, 1:step:end);
-Eys = Ey(1:step:end, 1:step:end);
-Ems = E_mag(1:step:end, 1:step:end);
-quiver(Xs, Ys, Exs./Ems, Eys./Ems, 0.5, 'k');
+% --- Electric potential with field arrows ---
+p = FieldPlot("potential_phi_with_E.png");
+p.add_Image(x, y, phi, "Electric potential \\phi with field arrows", ColorMaps.jet);
+p.add_Arrows(X, Y, Ex, Ey, skip, 0.03, colors.black);
+p.save();
 
-set(gca, 'FontSize', 16, 'YDir', 'normal');
-print("2D_ElectricField_Vectors.png", "-dpng");
+% --- Electric field magnitude with arrows ---
+p = FieldPlot("E_magnitude_with_arrows.png");
+p.add_Image(x, y, E_mag, "Electric field magnitude |E|", ColorMaps.jet);
+p.add_Arrows(X, Y, Ex, Ey, skip, 0.03, colors.black);
+p.save();
 
-% -------------------------------------------------------------------------
-% Plot: Charge Flux
-% -------------------------------------------------------------------------
+% --- Updated charge density ---
+p = FieldPlot("rho_updated.png");
+p.add_Image(x, y, new_rho, "Updated charge density", ColorMaps.jet);
+p.save();
 
-figure;
-J_mag = sqrt(Jx.^2 + Jy.^2);     % Flux magnitude
-imagesc(x, y, J_mag);            % Background color map
-axis image; hold on;
-colorbar;
-title('Charge Flux J(x,y) = μρE');
-xlabel('x'); ylabel('y');
-
-step = 4;  % Downsample for clarity
-Xs = X(1:step:end, 1:step:end);
-Ys = Y(1:step:end, 1:step:end);
-Jxs = Jx(1:step:end, 1:step:end);
-Jys = Jy(1:step:end, 1:step:end);
-Jms = J_mag(1:step:end, 1:step:end);
-
-% Normalize arrows for consistent size
-quiver(Xs, Ys, Jxs./Jms, Jys./Jms, 0.5, 'k');
-
-set(gca, 'FontSize', 16, 'YDir', 'normal');
-print("2D_ChargeFlux_Map.png", "-dpng");
-
-
-% -------------------------------------------------------------------------
-% Plot: Rate of Change of Charge
-% -------------------------------------------------------------------------
-figure;
-imagesc(x, y, rho_dot);
-axis image; colorbar;
-title('Rate of Change \rhȯ(x,y) = -∇·J');
-xlabel('x'); ylabel('y');
-set(gca, 'FontSize', 16, 'YDir', 'normal');
-print("2D_RhoDot.png", "-dpng");
-
-% -------------------------------------------------------------------------
-% Plot: Old vs New Charge Density
-% -------------------------------------------------------------------------
-
-figure;
-
-subplot(2,2,1)
-imagesc(x, y, rho);
-axis image; colorbar;
-title('Old \rho(x,y)');
-set(gca, 'YDir', 'normal', 'FontSize', 16);
-
-subplot(2,2,2)
-imagesc(x, y, new_rho);
-axis image; colorbar;
-title('New \rho(x,y)');
-set(gca, 'YDir', 'normal', 'FontSize', 16);
-
-% Difference map: Δρ = new_rho - rho
-subplot(2,2,3)
-imagesc(x, y, new_rho - rho);
-axis image; colorbar;
-colormap(viridis);
-title('\Delta\rho(x,y) = New - Old');
-set(gca, 'YDir', 'normal', 'FontSize', 16);
-
-print("2D_Rho_Comparison_Diff.png", "-dpng");
-
-printf("All 2D FFT Poisson computations and plots completed.\n");
 
