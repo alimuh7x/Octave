@@ -19,19 +19,26 @@ solver = Solver.FFT;
 
 % Parameters
 Nx = 200;
-Lx = 1.0;
-dx = Lx / (Nx - 1);
-
+dx = 0.1;
 epsilon0 = 8.854e-12;
 
 omega = 1.8;       % relaxation factor (1 < ω < 2 for acceleration)
 
-% Grid
-x = linspace(0, Lx, Nx);
+i = 0:Nx-1;
+x = i * dx;
+Lx = (Nx-1) * dx;
 
+myprint("dx", dx);
+myprint("Nx", Nx);
+myprint("Lx", Lx);
+
+SinglePlot(x, x, 'x', 'x', 'x.png');
 % Charge density
-rho = sin(2 * pi * x);
 
+rho = sin(2 * pi * x / Lx);
+
+Totalrho = trapz(x, abs(rho));
+myprint("Total charge density C / m^3", Totalrho);
 % Initialize potential (Dirichlet BC)
 phi = zeros(1, Nx);
 
@@ -103,7 +110,6 @@ plot(x, rho, 'r', 'LineWidth', 1.5)
 xlabel('x'); ylabel('\rho(x)')
 
 title('Charge density \rho(x) = cos(2πx)')
-set(gca, 'XTick', [0, 0.25, 0.5, 0.75, 1]);
 set   (gca, 'FontSize', 14);
 set   (gca, 'LineWidth', 1.5);
 set   (gca, 'TickLength', [0.02, 0.02]);
@@ -113,7 +119,6 @@ subplot(2,1,2)
 plot(x, phi, 'b', 'LineWidth', 1.5)
 xlabel('x'); ylabel('\phi(x)')
 title('Potential \phi(x)')
-set(gca, 'XTick', [0, 0.25, 0.5, 0.75, 1]);
 set   (gca, 'FontSize', 14);
 set   (gca, 'LineWidth', 1.5);
 set   (gca, 'TickLength', [0.02, 0.02]);
@@ -121,6 +126,8 @@ grid on
 
 print ("Numerical_SOR.png", "-dpng");  % saves to PNG
 
+TotalPotentialEnergy = 0.5 * trapz(x, rho .* phi);
+myprint("Total Potential Energy J/m^2", TotalPotentialEnergy);
 
 % -------------------------------------------------------------------------
 %  NOTE: Compute electric field and movement from potential
@@ -142,7 +149,6 @@ subplot(2,1,1)
 plot(x, E, 'm', 'LineWidth', 1.5)
 xlabel('x'); ylabel('E(x)')
 title('Electric Field E(x) = -d\phi/dx')
-set(gca, 'XTick', [0, 0.25, 0.5, 0.75, 1]);
 set   (gca, 'FontSize', 14);
 set   (gca, 'LineWidth', 1.5);
 set   (gca, 'TickLength', [0.02, 0.02]);
@@ -153,7 +159,6 @@ subplot(2,1,2)
 plot(x, J, 'k', 'LineWidth', 1.5)
 xlabel('x'); ylabel('J(x)')
 title('Charge Flux J(x) =  M ρ·E')
-set(gca, 'XTick', [0, 0.25, 0.5, 0.75, 1]);
 set   (gca, 'FontSize', 14);
 set   (gca, 'LineWidth', 1.5);
 set   (gca, 'TickLength', [0.02, 0.02]);
@@ -176,7 +181,6 @@ subplot(2,1,1)
 plot(x, rho_dot, 'k', 'LineWidth', 1.5)
 title('Rate of Change \rhȯ(x) = -dJ/dx')
 xlabel('x'); ylabel('\rhȯ(x)')
-set(gca, 'XTick', [0, 0.25, 0.5, 0.75, 1]);
 set   (gca, 'FontSize', 14);
 set   (gca, 'LineWidth', 1.5);
 set   (gca, 'TickLength', [0.02, 0.02]);
@@ -186,7 +190,6 @@ subplot(2,1,2)
 plot(x, rho, 'r', 'LineWidth', 1.5); hold on
 plot(x, new_rho, 'b--', 'LineWidth', 1.5);
 title('Old vs New Charge Density \rho(x)')
-set(gca, 'XTick', [0, 0.25, 0.5, 0.75, 1]);
 set   (gca, 'FontSize', 14);
 set   (gca, 'LineWidth', 1.5);
 set   (gca, 'TickLength', [0.02, 0.02]);
