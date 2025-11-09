@@ -39,7 +39,7 @@ set(gca, 'LineWidth', 1.5);
 set(gca, 'TickLength', [0.01, 0.01]);
 set(gca, 'Position', [0.15 0.15 0.75 0.75]);  % manual tightening if needed
 legend('Total current', 'Anodic', 'Cathodic');
-print("Tafel plot.png", '-dpng', '-r300');
+print("Tafel plot.png", '-dpng');
 
 % --- Plot |i| vs E (linear scale) ---
 figure;
@@ -54,7 +54,7 @@ set(gca, 'LineWidth', 1.5);
 set(gca, 'TickLength', [0.01, 0.01]);
 set(gca, 'Position', [0.15 0.15 0.75 0.75]);  % manual tightening if needed
 legend('Total current', 'Anodic', 'Cathodic');
-print("Potential plot.png", '-dpng', '-r300');
+print("Potential plot.png", '-dpng');
 
 figure;
 plot(E, i_net, 'k', 'LineWidth', 2); hold on;
@@ -68,5 +68,5 @@ set(gca, 'LineWidth', 1.5);
 set(gca, 'TickLength', [0.01, 0.01]);
 set(gca, 'Position', [0.15 0.15 0.75 0.75]);  % manual tightening if needed
 legend('Total current', 'Anodic', 'Cathodic');
-print("2Potential plot.png", '-dpng', '-r300');
+print("2Potential plot.png", '-dpng');
 

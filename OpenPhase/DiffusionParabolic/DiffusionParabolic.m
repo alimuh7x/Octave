@@ -8,14 +8,17 @@ clear; clc;
 % --- Diffusion rate and timestep estimator ---
 
 % Input parameters
-D  = 1e-10;       % diffusivity (m^2/s)
-dx = 1e-6;        % grid spacing (m)
-
+D  = 1e-18;       % diffusivity (m^2/s)
+dx = 0.5e-9;        % grid spacing (m)
+M = 5e-18;
+dt = 0.01;
+c_increment = 1e-6
 % --- Recommended c_dot magnitude (1/s)
 c_dot_est = D / dx^2;
 
 % --- Recommended stable timestep (s)
 dt_recommended = dx^2 / (10 * D);
+
 fprintf('=================================================================\n');
 fprintf('  c_dot * dt     <  0.1 \n');
 fprintf('  D * dt         <  1/6 dx^2  \n');

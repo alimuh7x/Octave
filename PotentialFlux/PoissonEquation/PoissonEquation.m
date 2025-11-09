@@ -19,7 +19,7 @@ solver = Solver.FFT;
 
 % Parameters
 Nx = 200;
-dx = 0.1;
+dx = 0.01;
 epsilon0 = 8.854e-12;
 
 omega = 1.8;       % relaxation factor (1 < ω < 2 for acceleration)
