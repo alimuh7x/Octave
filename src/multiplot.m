@@ -1,4 +1,4 @@
-classdef CurvePlot < handle
+classdef multiplot < handle
     properties
         filename = '';
         fig;
@@ -15,7 +15,7 @@ classdef CurvePlot < handle
 
     methods
         % --- Constructor ---
-        function obj = CurvePlot(filename)
+        function obj = multiplot(filename)
             if nargin > 0
                 obj.filename = filename;
             end
