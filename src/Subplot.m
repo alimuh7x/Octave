@@ -1,7 +1,7 @@
 function Subplot(x, y1, y2, xl, yl1, yl2, filename, showMarkers)
     % --- Basic settings ---
-    lw = 4;  % line width
-    fs = 28; % font size
+    lw = 2;  % line width
+    fs = 14; % font size
     if nargin < 8, showMarkers = false; end
 
     % --- Create invisible figure ---
@@ -22,6 +22,7 @@ function Subplot(x, y1, y2, xl, yl1, yl2, filename, showMarkers)
     ylabel(yl1, 'FontSize', fs);
     pos = get(gca, 'Position');
     pos(1) = pos(1) + 0.04;
+    pos(2) = pos(2) + 0.02;
     set(gca, 'Position', pos);
     set(gca, 'FontSize', fs, 'LineWidth', lw, 'TickLength', [0.02, 0.02]);
     box on; grid on;
@@ -44,6 +45,7 @@ function Subplot(x, y1, y2, xl, yl1, yl2, filename, showMarkers)
     ylabel(yl2, 'FontSize', fs);
     pos = get(gca, 'Position');
     pos(1) = pos(1) + 0.04;
+    pos(2) = pos(2) + 0.02;
     set(gca, 'Position', pos);
     set(gca, 'FontSize', fs, 'LineWidth', lw, 'TickLength', [0.02, 0.02]);
     box on; grid on;
@@ -56,8 +58,7 @@ function Subplot(x, y1, y2, xl, yl1, yl2, filename, showMarkers)
 
     % ============================================================
     % --- Save and close ---
-    set(gcf, 'Position', [100, 100, 1200, 1000]);
-    print(filename, '-dpng', '-r300');
+    print(filename, '-dpng');
     fprintf('Saved subplot figure to %s\n', filename);
     close(fig);
 end

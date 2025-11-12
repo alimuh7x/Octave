@@ -21,5 +21,6 @@ eta   = phi_m - phi_l;            % overpotential [V]
 % --- Compute La ---
 La = L0 .* exp((aa * nM * F .* eta) ./ (Rg * T));
 
+exp((aa * nM * F .* phi_m) ./ (Rg * T))
 
-Subplot(phi_l, La, eta, '\phi_l  [V]', 'L_a  [mobility units]', 'Overpotential \eta [V]', 'Anodic_Mobility_vs_Liquid_Potential.png', true);
+Subplot(phi_l, La, eta, '\phi_l  [V]', 'L_a  [m^4 / Js]', 'Overpotential \eta [V]', 'Anodic_Mobility_vs_Liquid_Potential.png', true);

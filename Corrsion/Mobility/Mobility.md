@@ -18,14 +18,14 @@ E_{eq} = 0.0 V
 $$
 
 ---
-### Anodic Mobility vs Liquid Potential
+#### Anodic Mobility vs Liquid Potential
 
-- Plot 1:
+##### Plot 1:
 $$
 L_a - \phi_l 
 $$
 
-- Plot 2:
+##### Plot 2:
 $$
 \eta - \phi_l
 $$
@@ -33,6 +33,7 @@ $$
 
 
 ![Mobility](./Anodic_Mobility_vs_Liquid_Potential.png =600x500)
+
 
 
 ---
