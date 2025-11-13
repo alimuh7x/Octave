@@ -16,7 +16,7 @@ function Subplot(x, y1, y2, xl, yl1, yl2, filename, showMarkers)
     subplot(2, 1, 1);
     plot(x, y1, 'LineWidth', lw, 'Color', 'k'); hold on;
     if showMarkers
-        plot(x(m_idx), y1(m_idx), 'ob', 'MarkerFaceColor', 'k', 'MarkerSize', 12);
+        plot(x(m_idx), y1(m_idx), 'ob', 'MarkerFaceColor', 'k', 'MarkerSize', 6);
     end
     xlabel(xl, 'FontSize', fs);
     ylabel(yl1, 'FontSize', fs);
@@ -39,7 +39,7 @@ function Subplot(x, y1, y2, xl, yl1, yl2, filename, showMarkers)
     subplot(2, 1, 2);
     plot(x, y2, 'LineWidth', lw, 'Color', 'k'); hold on;
     if showMarkers
-        plot(x(m_idx), y2(m_idx), 'ob', 'MarkerFaceColor', 'k', 'MarkerSize', 12);
+        plot(x(m_idx), y2(m_idx), 'ob', 'MarkerFaceColor', 'k', 'MarkerSize', 6);
     end
     xlabel(xl, 'FontSize', fs);
     ylabel(yl2, 'FontSize', fs);

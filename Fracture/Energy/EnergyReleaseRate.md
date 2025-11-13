@@ -1,12 +1,3 @@
-
-<!-- TOC -->
-
-## Table of Contents
-
-- [🔹 Total potential energy](#🔹-total-potential-energy)
-
-<!-- /TOC -->
-
 ## 🔹 Total potential energy
 
 $$
@@ -22,6 +13,7 @@ where
 ---
 
 #### 🔹 Energy-release rate
+
 $$
 G = -\frac{d\Pi}{dA}
 $$
@@ -31,6 +23,7 @@ $$
 ---
 
 #### 🔹 Griffith fracture criterion
+
 $$
 G = G_c
 $$
@@ -40,12 +33,15 @@ Crack propagates when the **available energy** \(G\) equals the **required surfa
 ---
 
 #### 🔹 Typical analytic forms
+
 - **Fixed load (stress-controlled):**
+  
   $$
   G = \frac{\sigma^2 \pi a}{E'}
   $$
 
 - **Fixed displacement (strain-controlled):**
+  
   $$
   G = \frac{E' \pi \delta^2}{a}
   $$
@@ -60,19 +56,22 @@ E, & \text{plane stress} \\[4pt]
 $$
 
 ---
+
 ## Energy Release Rate
+
 ---
+
 - **More** energy is released when the crack length increases under fixed load compared to fixed displacement.
 - Less load is required to propagate a crack under fixed load conditions.
 
-![EnergyReleaseRate](./EnergyReleaseRate.png =500x)
+<img title="" src="./EnergyReleaseRate.png" alt="EnergyReleaseRate" width="419" data-align="center">
 ---
 
 #### 🔹 Interpretation
+
 - \($G > 0$\): energy released from system  
 - \($G < G_c$\): crack stable  
 - \($G = G_c$\): steady growth  
 - \($G > G_c$\): unstable fracture
 
 ---
-

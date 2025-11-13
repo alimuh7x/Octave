@@ -95,11 +95,14 @@ for n = 1:Nt
     end
 end
 
-Subplot(time, RM_arr, RMOH_arr, 'time', 'R_M', 'R_{MOH}', 'Reaction_Metal.png');
-Subplot(time, RH_arr, ROH_arr, 'time', 'R_H', 'R_{OH}', 'Reaction_Hydrogen.png');
+Rarray = [time, RM_arr, RMOH_arr, RH_arr, ROH_arr];
+xarray = [time, xM_arr, xMOH_arr, xH_arr, xOH_arr];
+yNames_R = {"time", "R_M", "R_{MOH}", "R_H", "R_{OH}"};
+yNames_x = {"time","c_M", "c_{MOH}", "c_H", "c_{OH}"};
 
-Subplot(time, xM_arr, xMOH_arr, 'time', 'c_M', 'c_{MOH}', 'Concentration_Metal.png');
-Subplot(time, xH_arr, xOH_arr, 'time', 'c_H', 'c_{OH}', 'Concentration_Hydrogen.png');
+Subplot4(Rarray, yNames_R, 'ReactionTime_Evolution_Rates.png');
+Subplot4(xarray, yNames_x, 'ReactionTime_Evolution_Concentrations.png');
+
 
 disp('✅  Saved: time_evolution_FeHydrolysis.png');
 

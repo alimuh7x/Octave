@@ -10,15 +10,15 @@ $$
 \theta = \frac{C}{C + \exp\!\left(-\frac{\Delta g_b^0}{RT}\right)}
 $$
 
-where:
+**where**:
 
-| Symbol | Meaning |
-|:-------:|:--------|
-| \( $\theta$ \)                                 | Fraction of occupied traps |
-| \( C \) | Hydrogen concentration (mole fraction) |
-| \( $\Delta g_b^0$ \) | Binding free energy (J/mol) |
-| \( R \) | Gas constant (8.314 J/mol·K) |
-| \( T \) | Temperature (K) |
+| Symbol               | Meaning                                |
+|:--------------------:|:-------------------------------------- |
+| \( $\theta$ \)       | Fraction of occupied traps             |
+| \( C \)              | Hydrogen concentration (mole fraction) |
+| \( $\Delta g_b^0$ \) | Binding free energy (J/mol)            |
+| \( R \)              | Gas constant (8.314 J/mol·K)           |
+| \( T \)              | Temperature (K)                        |
 
 This equation gives a **sigmoidal dependence** of trap occupancy on bulk hydrogen concentration.
 
@@ -46,6 +46,7 @@ $$
 $$
 
 So:
+
 - \( \theta(C) \) increases with hydrogen concentration,
 - \( G_c(C)/G_c(0) \) decreases as hydrogen coverage increases.
 
@@ -53,14 +54,14 @@ So:
 
 ## 4. Conceptual Plot
 
-| Variable | Meaning |
-|:--|:--|
-| **Blue curve** | \( $\theta(C)$ \): Hydrogen coverage (sigmoidal) |
-| **Black dashed curve** | \( G_c(C)/G_c($\theta$) = 1 - \chi\theta(C) \): Fracture energy degradation |
+| Variable               | Meaning                                                                      |
+|:---------------------- | ---------------------------------------------------------------------------- |
+| **Blue curve**         | \( $\theta(C)$ \): Hydrogen coverage (sigmoidal)                             |
+| **Black dashed curve** | $\frac{G_c(C)}{G_c(\theta)}= 1 -\chi\theta(c)$ : Fracture energy degradation |
 
 The resulting figure looks like this:
 
-![Hydrogen degradation plot](Hydrogen_FractureEnergy_vs_Concentration.png)
+<img title="" src="Hydrogen_FractureEnergy_vs_Concentration.png" alt="Hydrogen degradation plot" data-align="center" width="472">
 
 ---
 
@@ -76,4 +77,3 @@ The resulting figure looks like this:
 > **Interpretation:**  
 > As hydrogen concentration increases, more traps are filled → \( \theta ↑ \) → \( G_c ↓ \).  
 > This leads to **hydrogen-assisted embrittlement**, captured naturally by this coupled relationship.
-
