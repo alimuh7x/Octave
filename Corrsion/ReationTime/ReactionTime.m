@@ -1,6 +1,6 @@
 #!/usr/bin/env -S octave --no-gui --quiet
 set(0, "defaultfigurevisible", "off");  % hide figure window
-addpath(genpath("./../../src"));  % add src folder to path
+addpath(genpath("./../../src"));        % add src folder to path
 clc; clear; format long;
 
 % === Corrosion hydrolysis reaction rates ===
@@ -52,7 +52,7 @@ fprintf("---------------------------------------------------------------\n");
 
 % ==== time loop ====
 for n = 1:Nt
-    % reaction rates
+    % ------------------------------- Reaction rates--------------------------------------
     RM   = kb1*(-K1*xM + xH*xMOH);
     RMOH = kb1*( K1*xM - xH*xMOH);
     RH   = kb1*( K1*xM - xH*xMOH) + kb2*(K2 - xH*xOH);
@@ -64,19 +64,19 @@ for n = 1:Nt
     ROH_arr(n)  =  ROH;
 
 
-    % update (explicit Euler)
+    % -------------------------------Update (explicit Euler)-----------------------------
     xM   += RM*dt;
     xMOH += RMOH*dt;
     xH   += RH*dt;
     xOH  += ROH*dt;
 
-    % safety: keep positive
+    % ------------------------------ safety: keep positive ------------------------------
     xM   = max(xM, 0);
     xMOH = max(xMOH, 0);
     xH   = max(xH, 1e-14);
     xOH  = max(xOH, 1e-14);
 
-    % store
+    % -------------------------------Store----------------------------------------------
     time(n)     =  n*dt;
     xM_arr(n)   =  xM;
     xMOH_arr(n) = xMOH;
@@ -105,4 +105,5 @@ Subplot4(xarray, yNames_x, 'ReactionTime_Evolution_Concentrations.png');
 
 
 disp('✅  Saved: time_evolution_FeHydrolysis.png');
+
 
