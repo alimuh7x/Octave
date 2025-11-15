@@ -16,12 +16,12 @@ function Subplot(x, y1, y2, xl, yl1, yl2, filename, showMarkers)
     subplot(2, 1, 1);
     plot(x, y1, 'LineWidth', lw, 'Color', 'k'); hold on;
     if showMarkers
-        plot(x(m_idx), y1(m_idx), 'ob', 'MarkerFaceColor', 'k', 'MarkerSize', 6);
+        plot(x(m_idx), y1(m_idx), 'ok', 'MarkerFaceColor', 'k', 'MarkerSize', 6);
     end
     xlabel(xl, 'FontSize', fs);
     ylabel(yl1, 'FontSize', fs);
     pos = get(gca, 'Position');
-    pos(1) = pos(1) + 0.04;
+    pos(1) = pos(1) + 0.06;
     pos(2) = pos(2) + 0.02;
     set(gca, 'Position', pos);
     set(gca, 'FontSize', fs, 'LineWidth', lw, 'TickLength', [0.02, 0.02]);
@@ -39,12 +39,12 @@ function Subplot(x, y1, y2, xl, yl1, yl2, filename, showMarkers)
     subplot(2, 1, 2);
     plot(x, y2, 'LineWidth', lw, 'Color', 'k'); hold on;
     if showMarkers
-        plot(x(m_idx), y2(m_idx), 'ob', 'MarkerFaceColor', 'k', 'MarkerSize', 6);
+        plot(x(m_idx), y2(m_idx), 'ok', 'MarkerFaceColor', 'k', 'MarkerSize', 6);
     end
     xlabel(xl, 'FontSize', fs);
     ylabel(yl2, 'FontSize', fs);
     pos = get(gca, 'Position');
-    pos(1) = pos(1) + 0.04;
+    pos(1) = pos(1) + 0.06;
     pos(2) = pos(2) + 0.02;
     set(gca, 'Position', pos);
     set(gca, 'FontSize', fs, 'LineWidth', lw, 'TickLength', [0.02, 0.02]);

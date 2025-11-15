@@ -15,7 +15,7 @@ T   = 298;         % K
 phi_m = 0.2;       % applied metal potential [V]
 
 % --- Liquid potential range ---
-phi_l = linspace(0.01, 0.0, 200);   % V
+phi_l = linspace(0.0, 0.3, 200);   % V
 eta   = phi_m - phi_l;            % overpotential [V]
 
 % --- Compute La ---
